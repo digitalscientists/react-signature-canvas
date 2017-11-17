@@ -16,6 +16,7 @@ export default class SignatureCanvas extends Component {
     onBegin: PropTypes.func,
     canvasProps: PropTypes.object,
     keepOnResize: PropTypes.bool,
+    strokes: PropTypes.array
   }
 
   static defaultProps = {
@@ -28,7 +29,8 @@ export default class SignatureCanvas extends Component {
     penColor: 'black',
     backgroundColor: 'rgba(0,0,0,0)',
     onEnd: () => {},
-    onBegin: () => {}
+    onBegin: () => {},
+    strokes: []
   }
 
   componentDidMount () {
@@ -43,6 +45,12 @@ export default class SignatureCanvas extends Component {
   componentWillUnmount() {
     this.off();
   }
+
+  getData = () => {
+    return {
+      strokes: this.props.strokes
+    }
+  }  
 
   clear = () => {
     let ctx = this._ctx
@@ -109,6 +117,7 @@ export default class SignatureCanvas extends Component {
 
   _reset = () => {
     this.points = [];
+    this.strokePoints = [];
     this._lastVelocity = 0;
     this._lastWidth = (this.props.minWidth + this.props.maxWidth) / 2
     this._isEmpty = true;
@@ -217,6 +226,8 @@ export default class SignatureCanvas extends Component {
     var canDrawCurve = this.points.length > 2,
         point = this.points[0];
 
+    this.props.strokes.push(this.strokePoints)
+
     if (!canDrawCurve && point) {
       this._strokeDraw(point);
     }
@@ -235,6 +246,8 @@ export default class SignatureCanvas extends Component {
         curve, tmp;
 
     points.push(point);
+
+    this.strokePoints.push(point)
 
     if (points.length > 2) {
       // To reduce the initial lag make it work with 3 points
